@@ -10,4 +10,4 @@
 [TicoBDFD | Comunidad](https://discord.gg/YyAKWUXKtH)
 
 # IMPORTANTE
-Por cualquier tipo de modificación al código/variable pierdes el derecho de recibir soporte de parte del creador
+Por cualquier tipo de modificación al código/variable pierdes el derecho de recibir soporte por parte del creador
