@@ -1,1 +1,1 @@
-# advertencias-tico-v1
+# VARIABLE
