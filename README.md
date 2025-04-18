@@ -10,4 +10,4 @@
 https://discord.gg/YyAKWUXKtH
 
 # IMPORTANTE
-Por cualquier modificación al código pierdes el derecho de recibir soporte de parte del creador
+Por cualquier tipo de modificación al código/variable pierdes el derecho de recibir soporte de parte del creador
