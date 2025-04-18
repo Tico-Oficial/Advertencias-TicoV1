@@ -7,7 +7,7 @@
 [Tico#](https://discord.com/users/635160512832733185)
 
 # COMUNIDAD
-https://discord.gg/YyAKWUXKtH
+[TicoBDFD | Comunidad](https://discord.gg/YyAKWUXKtH)
 
 # IMPORTANTE
 Por cualquier tipo de modificación al código/variable pierdes el derecho de recibir soporte de parte del creador
