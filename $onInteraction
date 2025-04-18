@@ -1,0 +1,352 @@
+PREFIJO: $onInteraction
+
+$nomention
+$onlyIf[$checkContains[$customID;config-adv]==true;]
+$onlyPerms[manageserver;]
+$jsonParse[$getUserVar[advs-tico;$botID]]
+$if[$jsonExists[advs]==false]
+$jsonArray[advs]
+$endif
+$if[$customID==me-config-adv]
+$onlyPerms[manageserver;]
+$if[$message==rol]
+$newModal[rol-config-adv;🛠️ Rol de staff]
+$addTextInput[rol;short;ID del rol;;;yes;;Ejemplo: 1082647789373627189]
+$elseif[$message==acc]
+$newModal[acc-config-adv;👮 Config acciones]
+$addTextInput[adv;short;Cantidad de advertencias;;;yes;;3]
+$addTextInput[acc;short;Acción;;;yes;;mute/kick/ban]
+$addTextInput[acc-time;short;Tiempo (si es mute);;;no;;5s/5m/5h/5d]
+$elseif[$message==logs]
+$newModal[logs-config-adv;📋 Canal de registros]
+$addTextInput[logs;short;ID del canal;;;yes;;Ejemplo: 1738255666739037628]
+$elseif[$message==ver]
+$removeAllComponents
+$ephemeral
+$title[👀 Configuración actual]
+$description[
+**🛠️ Rol de staff:** $replaceText[$replaceText[$checkCondition[$json[rol]==];true;N/A;1];false;<@&$json[rol]>;1]
+**📋 Canal de registros:** $replaceText[$replaceText[$checkCondition[$json[logs]==];true;N/A;1];false;<#$json[logs]>;1]]
+$var[tico;0]
+$var[tico2;1]
+$if[$jsonArrayCount[advs]!=0]
+$eval[$repeatMessage[$jsonArrayCount[advs];
+$$c[]if[$$c[]var[tico2\]<=$$c[]jsonArrayCount[advs\]\]
+$$c[]textSplit[$$c[]json[advs\;$$c[]var[tico\]\;cd\]\;\]
+$$c[]var[acciones\;$$c[]var[acciones\]
+#-----------------__**($$c[]var[tico2\])**__-----------------#
+**🆔 Código de configuración:** $$c[]json[advs\;$$c[]var[tico\]\;cd\]
+**⚠️ Cantidad de advertencias:** $$c[]splitText[3\]
+**👮 Acción:** $$c[]json[advs\;$$c[]var[tico\]\;acc\]
+**⏰ Tiempo:** $$c[]json[advs\;$$c[]var[tico\]\;time\]
+\]
+$$c[]endif
+$$c[]var[tico\;$$c[]sum[$$c[]var[tico\]\;1\]\]
+$$c[]var[tico2\;$$c[]sum[$$c[]var[tico2\]\;1\]\]
+]]
+$addField[👮 Acciones automáticas ($jsonArrayCount[advs]/10);
+$var[acciones]]
+$addButton[no;edit-config-adv;Editar acción;primary;no;✍️;]
+$addButton[no;borr-config-adv;Borrar acción;danger;no;🗑️;]
+$endif
+$color[6e00ff]
+$endif
+
+$elseif[$customID==rol-config-adv]
+$removeAllComponents
+$ephemeral
+$if[$roleExists[$input[rol]]==true]
+$jsonSetString[rol;$input[rol]]
+$description[✅ El rol <@&$input[rol]> fué configurado correctamente]
+$color[00ff00]
+$setUserVar[advs-tico;$jsonStringify;$botID]
+$else
+$description[❌ El rol específicado no existe]
+$color[ff0000]
+$endif
+
+$elseif[$customID==acc-config-adv]
+$removeAllComponents
+$ephemeral
+$if[$jsonArrayCount[advs]<10]
+$if[$isNumber[$input[adv]]==true]
+$if[$toLowercase[$input[acc]]==mute]
+$if[$input[acc-time]!=]
+$textSplit[$input[acc-time];]
+$var[time;$getTextSplitIndex[$getTextSplitLength]]
+$removeSplitTextElement[$getTextSplitLength]
+$if[$and[$checkContains[$toLowercase[$input[acc-time]];s;m;h;d]==true;$isNumber[$joinSplitText[]]==true;$isNumber[$input[acc-time]]==false]==true]
+$if[$jsonArrayCount[advs]<=0]
+$setUserVar[advs-tico;$replaceText[$jsonStringify;\];{"acc":"$input[acc]","time":"$input[acc-time]","cd":"$randomString[2]$input[adv]"}\]];$botID]
+$else
+$setUserVar[advs-tico;$replaceText[$jsonStringify;\];,{"acc":"$input[acc]","time":"$input[acc-time]","cd":"$randomString[2]$input[adv]"}\]];$botID]
+$endif
+$description[✅ Acción automática configurada correctamente]
+$color[00ff00]
+$else
+$addField[❌ Formato no válido;
+Ejemplos del formato:
+``10s, 15m, 1h, 2d``
+
+s = segundos
+m = minutos
+h = horas
+d = días]
+$color[ff0000]
+$endif
+
+$else
+$description[❌ Si la acción es un muteo el argumento del tiempo no puede ir vacío]
+$color[ff0000]
+$endif
+
+$else
+
+$if[$checkContains[$toLowercase[$input[acc]];kick;ban]==true]
+
+$if[$jsonArrayCount[advs]<=0]
+$setUserVar[advs-tico;$replaceText[$jsonStringify;\];{"acc":"$input[acc]","time":"N/A","cd":"$randomString[2]$input[adv]"}\]];$botID]
+$else
+$setUserVar[advs-tico;$replaceText[$jsonStringify;\];,{"acc":"$input[acc]","time":"N/A","cd":"$randomString[2]$input[adv]"}\]];$botID]
+$endif
+$description[✅ Acción automática configurada correctamente]
+$color[00ff00]
+
+$else
+$description[❌ Especifica si "mute, kick o ban"]
+$color[ff0000]
+$endif
+
+$endif
+
+$else
+$description[❌ En la cantidad de advertencias el argumento tiene que ser un número]
+$color[ff0000]
+$endif
+
+$else
+$description[❌ Límite alcanzado **10/10**]
+$color[ff0000]
+$endif
+
+$elseif[$customID==logs-config-adv]
+$removeAllComponents
+$ephemeral
+$if[$channelExists[$input[logs]]==true]
+$jsonSetString[logs;$input[logs]]
+$description[✅ Canal configurado correctamente]
+$color[00ff00]
+$setUserVar[advs-tico;$jsonStringify;$botID]
+$else
+$description[❌ El canal específicado no existe]
+$color[ff0000]
+$endif
+
+
+$elseif[$customID==edit-config-adv]
+$newModal[mod-edit-config-adv;Edita la acción]
+$addTextInput[id;short;Código de configuración;0;3;yes;;345]
+$addTextInput[adv;short;Cantidad de advertencias;;;yes;;]
+$addTextInput[acc;short;Acción;;;yes;;]
+$addTextInput[time;short;Tiempo (si es mute);;;no;;]
+
+$elseif[$customID==borr-config-adv]
+$newModal[mod-borr-config-adv;Edita la acción]
+$addTextInput[id;short;Código de configuración;0;3;yes;;345]
+
+$elseif[$checkContains[$customID;user-borr-config-adv]==true]
+$if[$hasRole[$authorID;$json[rol]]==true]
+$textSplit[$customID;-]
+$newModal[$splitText[1]-mod-user-butt-config-adv;Quitar advertencia]
+$addTextInput[id;short;Código de configuración;0;4;yes;;C#j4]
+$addTextInput[razon;short;¿Razón?;;;yes;;]
+$endif
+
+$elseif[$customID==mod-edit-config-adv]
+$removeAllComponents
+$ephemeral
+$if[$and[$charCount[$input[id]]==3;$checkContains[$json[advs];$input[id]]==true]==true]
+
+$if[$isNumber[$input[adv]]==true]
+$if[$toLowercase[$input[acc]]==mute]
+$if[$input[time]!=]
+$textSplit[$input[time];]
+$var[time;$getTextSplitIndex[$getTextSplitLength]]
+$removeSplitTextElement[$getTextSplitLength]
+$if[$and[$checkContains[$toLowercase[$input[time]];s;m;h;d]==true;$isNumber[$joinSplitText[]]==true;$isNumber[$input[time]]==false]==true]
+$else
+$addField[❌ Formato no válido;
+Ejemplos del formato:
+``10s, 15m, 1h, 2d``
+
+s = segundos
+m = minutos
+h = horas
+d = días]
+$color[ff0000]
+$stop
+$endif
+$else
+$description[❌ Si la acción es un muteo el argumento del tiempo no puede ir vacío]
+$color[ff0000]
+$stop
+$endif
+$else
+$if[$checkContains[$toLowercase[$input[acc]];kick;ban]==true]
+$else
+$description[❌ Especifica si "mute, kick o ban"]
+$color[ff0000]
+$stop
+$endif
+$endif
+$else
+$description[❌ En la cantidad de advertencias el argumento tiene que ser un número]
+$color[ff0000]
+$stop
+$endif
+
+$var[tico;0]
+$eval[$repeatMessage[$jsonArrayCount[advs];
+$$c[]if[$$c[]jsonArrayIndex[advs\;$$c[]var[tico\]\;$$c[]input[id\]\]!=-1\]
+$$c[]textSplit[$$c[]json[advs\;$$c[]var[tico\]\;cd\]\;\]
+$$c[]jsonSetString[advs\;$$c[]var[tico\]\;cd\;$$c[]replaceText[$$c[]replaceText[$$c[]checkCondition[$$c[]input[adv\]==\]\;true\;$$c[]json[advs\;$$c[]var[tico\]\;cd\]\;1\]\;false\;$$c[]splitText[1\]$$c[]splitText[2\]$$c[]input[adv\]\;1\]\]
+$$c[]jsonSetString[advs\;$$c[]var[tico\]\;acc\;$$c[]replaceText[$$c[]replaceText[$$c[]checkCondition[$$c[]input[acc\]==\]\;true\;$$c[]json[advs\;$$c[]var[tico\]\;acc\]\;1\]\;false\;$$c[]input[acc\]\;1\]\]
+$$c[]jsonSetString[advs\;$$c[]var[tico\]\;time\;$$c[]replaceText[$$c[]replaceText[$$c[]checkCondition[$$c[]and[$$c[]json[advs\;$$c[]var[tico\]\;acc\]!=mute\;$$c[]input[acc\]!=mute\]==true\]\;true\;N/A\;1\]\;false\;$$c[]input[time\]\;1\]\]
+$$c[]endif
+$$c[]var[tico\;$$c[]sum[$$c[]var[tico\]\;1\]\]
+]]
+$description[✅ Editado correctamente]
+$color[00ff00]
+$setUserVar[advs-tico;$jsonStringify;$botID]
+$else
+$description[❌ Este código no existe]
+$color[ff0000]
+$endif
+
+$elseif[$customID==mod-borr-config-adv]
+$removeAllComponents
+$ephemeral
+$if[$and[$charCount[$input[id]]==3;$checkContains[$json[advs];$input[id]]==true]==true]
+$var[tico;0]
+$eval[$repeatMessage[$jsonArrayCount[advs];
+$$c[]if[$$c[]jsonArrayIndex[advs\;$$c[]var[tico\]\;$$c[]input[id\]\]!=-1\]
+$$c[]jsonUnset[advs\;$$c[]var[tico\]\]
+$$c[]endif
+$$c[]var[tico\;$$c[]sum[$$c[]var[tico\]\;1\]\]
+]]
+$description[✅ Eliminado correctamente]
+$color[00ff00]
+$setUserVar[advs-tico;$jsonStringify;$botID]
+$else
+$description[❌ Este código no existe]
+$color[ff0000]
+$endif
+
+$elseif[$checkContains[$customID;mod-user-butt-config-adv]==true]
+$removeAllComponents
+$ephemeral
+$textSplit[$customID;-]
+$jsonParse[$getUserVar[advs-tico;$botID]]
+$var[canal;$json[logs]]
+$jsonParse[$getUserVar[advs-tico;$splitText[1]]]
+$if[$and[$charCount[$input[id]]==4;$checkContains[$json[advs];$input[id]]==true]==true]
+$var[tico;0]
+$var[loop;$cropText[$repeatMessage[10;$repeatMessage[10;a]];$jsonArrayCount[advs];]]
+$eval[$replaceText[$var[loop];a;
+$$c[]if[$$c[]jsonArrayIndex[advs\;$$c[]var[tico\]\;$$c[]input[id\]\]!=-1\]
+$$c[]var[razon\;$$c[]json[advs\;$$c[]var[tico\]\;razon\]\]
+$$c[]jsonUnset[advs\;$$c[]var[tico\]\]
+$$c[]stop
+$$c[]endif
+$$c[]var[tico\;$$c[]sum[$$c[]var[tico\]\;1\]\]
+;-1]]
+$jsonSetString[advs-u;$sub[$json[advs-u];1]]
+$description[✅ Advertencia removida correctamente]
+$color[00ff00]
+$setUserVar[advs-tico;$jsonStringify;$splitText[1]]
+$if[$channelExists[$var[canal]]==true]
+$sendEmbedMessage[$var[canal];;
+⚠️ Advertencia removida;;
+**👤 Usuario:** <@$splitText[1]>
+**👔 Encargado:** <@$authorID>
+**⁉️ Razón de la advertencia:**$var[razon]
+**⁉️ Razón de removerla:** $input[razon]
+;6e00ff;;;;;;;;]
+$endif
+$else
+$description[❌ Este código no existe]
+$color[ff0000]
+$endif
+
+$elseif[$checkContains[$customID;<advs-config-adv]==true]
+$textSplit[$customID;-]
+$var[user;$splitText[1]]
+$jsonParse[$getUserVar[advs-tico;$var[user]]]
+$textSplit[$getEmbedData[$channelID;$messageID;1;footer]; ]
+$var[pg;$sub[$splitText[2];1]]
+
+$var[e;$sub[$var[pg];1]]
+$var[tico;$replaceText[$replaceText[$checkCondition[$var[pg]<=1];true;;1];false;$var[e];1]0]
+$var[tico2;$replaceText[$replaceText[$checkCondition[$var[pg]<=1];true;;1];false;$var[e];1]1]
+$var[<;$replaceText[$replaceText[$checkCondition[$var[pg]<=1];true;yes;1];false;no;1]]
+$var[>;$replaceText[$replaceText[$checkCondition[$jsonArrayCount[advs]>$var[pg]0];true;no;1];false;yes;1]]
+
+$jsonArrayReverse[advs]
+$eval[$repeatMessage[10;
+$$c[]var[acciones\;$$c[]var[acciones\]
+#-----------------__**($$c[]var[tico2\])**__-----------------#
+**🆔 Código de caso:** $$c[]json[advs\;$$c[]var[tico\]\;cd\]
+**👮 Encargado:** <@$$c[]json[advs\;$$c[]var[tico\]\;staff\]>
+**⁉️ Razón:**$$c[]json[advs\;$$c[]var[tico\]\;razon\]
+**🗓️ Fecha:** <t:$$c[]json[advs\;$$c[]var[tico\]\;fecha\]:F>
+\]
+$$c[]var[tico\;$$c[]sum[$$c[]var[tico\]\;1\]\]
+$$c[]var[tico2\;$$c[]sum[$$c[]var[tico2\]\;1\]\]
+]]
+$title[⚠️ Advertencias]
+$description[$replaceText[$replaceText[$checkCondition[$jsonArrayCount[advs]>0];true;
+**👤 Usuario:** <@$var[user]>
+**#️⃣ Total:** $jsonArrayCount[advs]
+$var[acciones];1];false;No hay advertencias;1]]
+$footer[Página $var[pg]]
+$color[6e00ff]
+$editButton[$var[user]-<advs-config-adv;;secondary;$var[<];⬅️;]
+$editButton[$var[user]-user-borr-config-adv;Quitar advertencia;danger;no;;]
+$editButton[$var[user]-advs>-config-adv;;secondary;$var[>];➡️;]
+
+$elseif[$checkContains[$customID;advs>-config-adv]==true]
+$textSplit[$customID;-]
+$var[user;$splitText[1]]
+$jsonParse[$getUserVar[advs-tico;$var[user]]]
+$textSplit[$getEmbedData[$channelID;$messageID;1;footer]; ]
+$var[pg;$sum[$splitText[2];1]]
+$var[e;$sub[$var[pg];1]]
+$var[tico;$var[e]0]
+$var[tico2;$var[e]1]
+$textSplit[$jsonArrayCount[advs];]
+$var[repe;$replaceText[$replaceText[$checkCondition[$jsonArrayCount[advs]>=$var[pg]0];true;10;1];false;$splitText[2];1]]
+$var[>;$replaceText[$replaceText[$checkCondition[$jsonArrayCount[advs]>$var[pg]0];true;no;1];false;yes;1]]
+
+$jsonArrayReverse[advs]
+$eval[$repeatMessage[$var[repe];
+$$c[]var[acciones\;$$c[]var[acciones\]
+#-----------------__**($$c[]var[tico2\])**__-----------------#
+**🆔 Código de caso:** $$c[]json[advs\;$$c[]var[tico\]\;cd\]
+**👮 Encargado:** <@$$c[]json[advs\;$$c[]var[tico\]\;staff\]>
+**⁉️ Razón:**$$c[]json[advs\;$$c[]var[tico\]\;razon\]
+**🗓️ Fecha:** <t:$$c[]json[advs\;$$c[]var[tico\]\;fecha\]:F>
+\]
+$$c[]var[tico\;$$c[]sum[$$c[]var[tico\]\;1\]\]
+$$c[]var[tico2\;$$c[]sum[$$c[]var[tico2\]\;1\]\]
+]]
+$title[⚠️ Advertencias]
+$description[$replaceText[$replaceText[$checkCondition[$jsonArrayCount[advs]>0];true;
+**👤 Usuario:** <@$var[user]>
+**#️⃣ Total:** $jsonArrayCount[advs]
+$var[acciones];1];false;No hay advertencias;1]]
+$footer[Página $var[pg]]
+$color[6e00ff]
+$editButton[$var[user]-<advs-config-adv;;secondary;no;⬅️;]
+$editButton[$var[user]-user-borr-config-adv;Quitar advertencia;danger;no;;]
+$editButton[$var[user]-advs>-config-adv;;secondary;$var[>];➡️;]
+$endif
