@@ -1,1 +1,171 @@
+PREFIJO: + (De prefijo pones el de tu bot, ya sea "+", "!", "?", ect...)
 
+$nomention
+
+$c[👇 CAMBIAR PREFIJOS DE SUBCOMANDOS👇]
+$var[prefix-config-sistem;config-advs]
+$var[prefix-dar-adv;adv]
+$var[prefix-ver-advs;advs]
+$c[👆 CAMBIAR PREFIJOS DE SUBCOMANDOS 👆]
+
+$if[$message[1]==$var[prefix-config-sistem]]
+$onlyPerms[manageserver;]
+$title[⚙️ | Config sistema de advertencias]
+$description[
+<@$authorID> bienvenido al panel para configurar el sistema de advertencias en tu servidor.
+
+-# **__CREDITOS__**
+> - -# **Creador:** <@635160512832733185>]
+$color[6e00ff]
+$newSelectMenu[me-config-adv;0;1;⚙️ | Configurar sistema;]
+$addSelectMenuOption[me-config-adv;Rol de staff;rol;Configura el rol de staff;;🛠️;]
+$addSelectMenuOption[me-config-adv;Acciones;acc;Configura acciones automáticas;;👮;]
+$addSelectMenuOption[me-config-adv;Canal de registros;logs;Configura un canal para los registros;;📋;]
+$addSelectMenuOption[me-config-adv;Configuración actual;ver;Consulta la configuración actual;;👀;]
+
+$elseif[$message[1]==$var[prefix-dar-adv]]
+$jsonParse[$getUserVar[advs-tico;$botID]]
+$if[$jsonExists[advs]==false]
+$jsonArray[advs]
+$endif
+$if[$hasRole[$authorID;$json[rol]]==true]
+$if[$mentioned[1]!=]
+$if[$mentioned[1]==$botID]
+$description[❌ No puedes hacer eso con este bot]
+$color[ff0000]
+$stop
+$endif
+$jsonParse[$getUserVar[advs-tico;$mentioned[1]]]
+$if[$jsonExists[advs]==false]
+$jsonArray[advs]
+$endif
+$if[$sum[$charCount[$getUserVar[advs-tico;$mentioned[1]]];$charCount[$messagesystembyticogod$getTimestamp]]>=4999]
+$description[❌ Variable de usuario llena, borra advertencias e intentalo de nuevo]
+$color[ff0000]
+$stop
+$endif
+$if[$jsonExists[advs-u]==true]
+$jsonSetString[advs-u;$sum[$json[advs-u];1]]
+$setUserVar[advs-tico;$jsonStringify;$mentioned[1]]
+$else
+$jsonSetString[advs-u;0]
+$jsonSetString[advs-u;$sum[$json[advs-u];1]]
+$setUserVar[advs-tico;$jsonStringify;$mentioned[1]]
+$endif
+$var[razon;$noMentionMessage]
+$var[razon;$replaceText[$replaceText[$checkCondition[$var[razon]==adv];true; No especificada;1];false;$replaceText[$var[razon];adv;;1];1]]
+$if[$jsonArrayCount[advs]<=0]
+$setUserVar[advs-tico;$replaceText[$jsonStringify;\];{"staff":"$authorID","razon":"$var[razon]","cd":"$randomString[4]","fecha":"$getTimestamp"}\]];$mentioned[1]]
+$else
+$setUserVar[advs-tico;$replaceText[$jsonStringify;\];,{"staff":"$authorID","razon":"$var[razon]","cd":"$randomString[4]","fecha":"$getTimestamp"}\]];$mentioned[1]]
+$endif
+
+$jsonParse[$getUserVar[advs-tico;$mentioned[1]]]
+$var[advs;$json[advs-u]]
+$jsonParse[$getUserVar[advs-tico;$botID]]
+$var[canal;$json[logs]]
+$if[$checkContains[$json[advs];$var[advs"]]==true]
+$var[tico;0]
+$eval[$repeatMessage[$jsonArrayCount[advs];
+$$c[]textSplit[$$c[]json[advs\;$$c[]var[tico\]\;cd\]\;\]
+$$c[]if[$$c[]splitText[3\]==$$c[]var[advs\]\]
+$$c[]var[acc\;$$c[]json[advs\;$$c[]var[tico\]\;acc\]\]
+$$c[]var[time\;$$c[]json[advs\;$$c[]var[tico\]\;time\]\]
+$$c[]stop
+$$c[]endif
+$$c[]var[tico\;$$c[]sum[$$c[]var[tico\]\;1\]\]
+]]
+$if[$toLowercase[$var[acc]]==mute]
+$try
+$timeout[$var[time];$mentioned[1]]
+$catch
+$var[error;yes]
+$endtry
+$var[text;$replaceText[$replaceText[$checkCondition[$var[error]==yes];true;
+
+❌ No se pudo aplicar la acción automática por problemas de jerarquia/permisos;1];false;
+
+También fué **muteado $var[time]** automáticamente;1]]
+$elseif[$toLowercase[$var[acc]]==kick]
+$try
+$kickMention
+$catch
+$var[error;yes]
+$endtry
+$var[text;$replaceText[$replaceText[$checkCondition[$var[error]==yes];true;
+
+❌ No se pudo aplicar la acción automática por problemas de jerarquia/permisos;1];false;
+
+También fué **kickeado** automáticamente;1]]
+$elseif[$toLowercase[$var[acc]]==ban]
+$try
+$banID[Configuración de acciones automaticas;$mentioned[1]]
+$catch
+$var[error;yes]
+$endtry
+$var[text;$replaceText[$replaceText[$checkCondition[$var[error]==yes];true;
+
+❌ No se pudo aplicar la acción automática por problemas de jerarquia/permisos;1];false;
+
+También fué **baneado** automáticamente;1]]
+$endif
+$endif
+$description[✅ Usuario advertido correctamente $var[text]]
+$color[00ff00]
+
+$if[$channelExists[$var[canal]]==true]
+$sendEmbedMessage[$var[canal];;
+⚠️ Nueva advertencia;;
+**👤 Usuario:** <@$mentioned[1]>
+**👔 Encargado:** <@$authorID>
+**⁉️ Razón:** $var[razon] $var[text]
+;6e00ff;;;;;;;;]
+$endif
+
+$else
+$description[❌ Menciona a un usuario]
+$color[ff0000]
+$endif
+
+$else
+$description[❌ No tenes permisos para usar este comando]
+$color[ff0000]
+$endif
+
+$elseif[$message[1]==$var[prefix-ver-advs]]
+$jsonParse[$getUserVar[advs-tico;$mentioned[1;yes]]]
+$if[$jsonExists[advs]==false]
+$jsonArray[advs]
+$endif
+$if[$and[$jsonArrayCount[advs]>0;$jsonArrayCount[advs]<10]==true]
+$var[repe;$jsonArrayCount[advs]]
+$else
+$var[repe;10]
+$endif
+$var[tico;0]
+$var[tico2;1]
+$jsonArrayReverse[advs]
+$eval[$repeatMessage[$var[repe];
+$$c[]var[acciones\;$$c[]var[acciones\]
+#-----------------__**($$c[]var[tico2\])**__-----------------#
+**🆔 Código de caso:** $$c[]json[advs\;$$c[]var[tico\]\;cd\]
+**👮 Encargado:** <@$$c[]json[advs\;$$c[]var[tico\]\;staff\]>
+**⁉️ Razón:**$$c[]json[advs\;$$c[]var[tico\]\;razon\]
+**🗓️ Fecha:** <t:$$c[]json[advs\;$$c[]var[tico\]\;fecha\]:F>
+\]
+$$c[]var[tico\;$$c[]sum[$$c[]var[tico\]\;1\]\]
+$$c[]var[tico2\;$$c[]sum[$$c[]var[tico2\]\;1\]\]
+]]
+$title[⚠️ Advertencias]
+$description[$replaceText[$replaceText[$checkCondition[$jsonArrayCount[advs]>0];true;
+**👤 Usuario:** <@$mentioned[1;yes]>
+**#️⃣ Total:** $jsonArrayCount[advs]
+$var[acciones];1];false;No hay advertencias;1]]
+$footer[$replaceText[$replaceText[$checkCondition[$jsonArrayCount[advs]>0];true;Página 1;1];false;$serverName[$guildID];1]]
+$color[6e00ff]
+$if[$jsonArrayCount[advs]>0]
+$addButton[no;$mentioned[1;yes]-<advs-config-adv;;secondary;yes;⬅️;]
+$addButton[no;$mentioned[1;yes]-user-borr-config-adv;Quitar advertencia;danger;no;;]
+$addButton[no;$mentioned[1;yes]-advs>-config-adv;;secondary;$if[$jsonArrayCount[advs]>10]no$elseyes$endif;➡️;]
+$endif
+$endif
