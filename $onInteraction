@@ -2,7 +2,6 @@ PREFIJO: $onInteraction
 
 $nomention
 $onlyIf[$checkContains[$customID;config-adv]==true;]
-$onlyPerms[manageserver;]
 $jsonParse[$getUserVar[advs-tico;$botID]]
 $if[$jsonExists[advs]==false]
 $jsonArray[advs]
@@ -53,6 +52,7 @@ $color[6e00ff]
 $endif
 
 $elseif[$customID==rol-config-adv]
+$onlyPerms[manageserver;]
 $removeAllComponents
 $ephemeral
 $if[$roleExists[$input[rol]]==true]
@@ -66,6 +66,7 @@ $color[ff0000]
 $endif
 
 $elseif[$customID==acc-config-adv]
+$onlyPerms[manageserver;]
 $removeAllComponents
 $ephemeral
 $if[$jsonArrayCount[advs]<10]
@@ -130,6 +131,7 @@ $color[ff0000]
 $endif
 
 $elseif[$customID==logs-config-adv]
+$onlyPerms[manageserver;]
 $removeAllComponents
 $ephemeral
 $if[$channelExists[$input[logs]]==true]
@@ -144,6 +146,7 @@ $endif
 
 
 $elseif[$customID==edit-config-adv]
+$onlyPerms[manageserver;]
 $newModal[mod-edit-config-adv;Edita la acción]
 $addTextInput[id;short;Código de configuración;0;3;yes;;345]
 $addTextInput[adv;short;Cantidad de advertencias;;;yes;;]
@@ -151,6 +154,7 @@ $addTextInput[acc;short;Acción;;;yes;;]
 $addTextInput[time;short;Tiempo (si es mute);;;no;;]
 
 $elseif[$customID==borr-config-adv]
+$onlyPerms[manageserver;]
 $newModal[mod-borr-config-adv;Edita la acción]
 $addTextInput[id;short;Código de configuración;0;3;yes;;345]
 
@@ -163,6 +167,7 @@ $addTextInput[razon;short;¿Razón?;;;yes;;]
 $endif
 
 $elseif[$customID==mod-edit-config-adv]
+$onlyPerms[manageserver;]
 $removeAllComponents
 $ephemeral
 $if[$and[$charCount[$input[id]]==3;$checkContains[$json[advs];$input[id]]==true]==true]
@@ -224,6 +229,7 @@ $color[ff0000]
 $endif
 
 $elseif[$customID==mod-borr-config-adv]
+$onlyPerms[manageserver;]
 $removeAllComponents
 $ephemeral
 $if[$and[$charCount[$input[id]]==3;$checkContains[$json[advs];$input[id]]==true]==true]
@@ -260,7 +266,6 @@ $$c[]stop
 $$c[]endif
 $$c[]var[tico\;$$c[]sum[$$c[]var[tico\]\;1\]\]
 ;-1]]
-$jsonSetString[advs-u;$sub[$json[advs-u];1]]
 $description[✅ Advertencia removida correctamente]
 $color[00ff00]
 $setUserVar[advs-tico;$jsonStringify;$splitText[1]]
