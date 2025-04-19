@@ -1,12 +1,12 @@
-PREFIJO: + (De prefijo pones el de tu bot, ya sea "+", "!", "?", ect...)
+PREFIJO: El prefijo de tu bot
 
 $nomention
 
-$c[👇 CAMBIAR PREFIJOS DE SUBCOMANDOS👇]
+$c[👇 CAMBIAR PREFIJOS 👇]
 $var[prefix-config-sistem;config-advs]
 $var[prefix-dar-adv;adv]
 $var[prefix-ver-advs;advs]
-$c[👆 CAMBIAR PREFIJOS DE SUBCOMANDOS 👆]
+$c[👆 CAMBIAR PREFIJOS 👆]
 
 $if[$message[1]==$var[prefix-config-sistem]]
 $onlyPerms[manageserver;]
@@ -44,16 +44,8 @@ $description[❌ Variable de usuario llena, borra advertencias e intentalo de nu
 $color[ff0000]
 $stop
 $endif
-$if[$jsonExists[advs-u]==true]
-$jsonSetString[advs-u;$sum[$json[advs-u];1]]
-$setUserVar[advs-tico;$jsonStringify;$mentioned[1]]
-$else
-$jsonSetString[advs-u;0]
-$jsonSetString[advs-u;$sum[$json[advs-u];1]]
-$setUserVar[advs-tico;$jsonStringify;$mentioned[1]]
-$endif
 $var[razon;$noMentionMessage]
-$var[razon;$replaceText[$replaceText[$checkCondition[$var[razon]==adv];true; No especificada;1];false;$replaceText[$var[razon];adv;;1];1]]
+$var[razon;$replaceText[$replaceText[$checkCondition[$var[razon]==$message[1]];true; No especificada;1];false;$replaceText[$var[razon];$message[1];;1];1]]
 $if[$jsonArrayCount[advs]<=0]
 $setUserVar[advs-tico;$replaceText[$jsonStringify;\];{"staff":"$authorID","razon":"$var[razon]","cd":"$randomString[4]","fecha":"$getTimestamp"}\]];$mentioned[1]]
 $else
@@ -61,7 +53,7 @@ $setUserVar[advs-tico;$replaceText[$jsonStringify;\];,{"staff":"$authorID","razo
 $endif
 
 $jsonParse[$getUserVar[advs-tico;$mentioned[1]]]
-$var[advs;$json[advs-u]]
+$var[advs;$jsonArrayCount[advs]]
 $jsonParse[$getUserVar[advs-tico;$botID]]
 $var[canal;$json[logs]]
 $if[$checkContains[$json[advs];$var[advs"]]==true]
